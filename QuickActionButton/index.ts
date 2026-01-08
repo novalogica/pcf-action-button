@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import ButtonControl, { IButtonControlProps } from "./ButtonControl";
+import { ActionButton } from "./interfaces";
 
 type IControlContext = ComponentFramework.Context<IInputs>;
 
@@ -26,9 +27,19 @@ export class QuickActionButton implements ComponentFramework.StandardControl<IIn
 
 	private renderControl(context: IControlContext): void {
 		const params = context.parameters;
+		const userSettings = context.userSettings.languageId;
 
+		const buttons = JSON.parse(params.Buttons.raw ?? "");
+
+		const buttonsWithTranslations = buttons.map((button: ActionButton) => {
+			return {
+				...button,
+				label: button.translations[userSettings] || button.translations["1033"] || "",
+			}
+		});
+		
 		const props: IButtonControlProps = {
-			buttons: JSON.parse(params.Buttons.raw ?? ""),
+			buttons: buttonsWithTranslations,
 			buttonType: params.ButtonType.raw ?? "",
 			isFormDisabled: context.mode.isControlDisabled,
 			onButtonClicked: this.onActionClicked
